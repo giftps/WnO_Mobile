@@ -5,6 +5,7 @@ import {
   ImageStyle,
   ListRenderItemInfo,
   ScrollView,
+  TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
@@ -29,24 +30,26 @@ import {
   HandPointerIcon,
   HeartIcon,
   MessageCircleIcon,
+  SettingsIcon,
   SlashIcon,
 } from "./extra/icons";
 import { useGetUserProfileMutation } from "../../services/fetch.user.service";
 
 const product: Product = Product.centralParkApartment();
 
-export interface UserProfile {
+export interface UserProfileInfo {
   id: string;
   navigation: object;
 }
 
-export default (props: UserProfile): React.ReactElement => {
-  const { id } = props;
+export default (props: UserProfileInfo): React.ReactElement => {
+  const { id, navigation } = props;
   const { user } = useSelector((state: RootState) => state.user.user);
   const [getUserProfile, { isLoading, isError, status, error }] =
     useGetUserProfileMutation();
   const [selectedIndex, setSelectedIndex] = React.useState(0);
   const [profile, setProfile] = React.useState([]);
+  const [isMainUser, setIsMainUser] = React.useState(false);
   const [cover, setCover] = React.useState("");
   const [image, setImage] = React.useState("");
   const [last_name, setLast_name] = React.useState("");
@@ -60,7 +63,9 @@ export default (props: UserProfile): React.ReactElement => {
   //   const UserInfo = user[0];
 
   React.useEffect(() => {
-    // console.log(user);
+    if (user.idu === id) {
+      setIsMainUser(true);
+    }
     UserProfile();
   }, []);
 
@@ -89,7 +94,7 @@ export default (props: UserProfile): React.ReactElement => {
   const styles = useStyleSheet(themedStyles);
 
   const onBookButtonPress = (): void => {
-    
+    navigation.navigate("UserSettings");
   };
 
   const renderDetailItem = (
@@ -170,6 +175,28 @@ export default (props: UserProfile): React.ReactElement => {
     </View>
   );
 
+  const renderUserHeader = (): React.ReactElement => (
+    <View style={styles.container}>
+      <ImageOverlay
+        style={styles.image}
+        source={{ uri: GLOBALTYPES.coversLink + cover }}
+      />
+      <Card style={styles.bookingCard} appearance="filled" disabled={true}>
+        <Avatar size="giant" source={{ uri: GLOBALTYPES.imageLink + image }} />
+        <Text style={styles.title} category="h6">
+          {first_name} {last_name}
+        </Text>
+        <Text style={styles.rentLabel} appearance="hint" category="p2">
+          {email}
+        </Text>
+        <Text>{country}</Text>
+        <TouchableOpacity style={styles.bookButton} onPress={onBookButtonPress}>
+          <SettingsIcon />
+        </TouchableOpacity>
+      </Card>
+    </View>
+  );
+
   const renderItem = (info: any): React.ReactElement => (
     <View style={styles.commentItem}>
       <View style={styles.postBody}>
@@ -212,7 +239,7 @@ export default (props: UserProfile): React.ReactElement => {
       onRefresh={() => UserProfile()}
       refreshing={refresh}
       renderItem={renderItem}
-      ListHeaderComponent={renderHeader()}
+      ListHeaderComponent={isMainUser ? renderUserHeader() : renderHeader()}
     />
   );
 };

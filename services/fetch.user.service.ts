@@ -40,7 +40,7 @@ export interface postFeedsRequest {
 export const usersApi = createApi({
   reducerPath: "userApi",
   baseQuery: fetchBaseQuery({
-    // baseUrl: "https://widenout.tk/api/endpoints/",
+    // baseUrl: "http://192.168.8.100/wnoweb//api/endpoints/",
     baseUrl: "https://jw-widenout.com/api/endpoints/",
     prepareHeaders: (headers, { getState }) => {
       headers.set("Content-Type", "application/json");
@@ -209,6 +209,13 @@ export const usersApi = createApi({
         body: credentials,
       }),
     }),
+    search: builder.mutation<any, any>({
+      query: (credentials) => ({
+        url: "search.php",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
     protected: builder.mutation<{ message: string }, void>({
       query: () => "protected",
     }),
@@ -262,7 +269,8 @@ export const {
   useGetPeopleMutation,
   useSetFriendMutation,
   useGetPendingFriendsMutation,
-  useRemovePendingFriendMutation
+  useRemovePendingFriendMutation,
+  useSearchMutation
 } = usersApi;
 
 // export const { usePost_feedMutation } = postApi;
